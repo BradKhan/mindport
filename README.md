@@ -14,6 +14,12 @@ A local-first, provider-independent utility for moving *selected* conversation e
 
 **Important:** Mindport cannot grant another provider automatic memory access. Importing data does not prove understanding, long-term retention, or deletion from third-party systems. Redaction is heuristic; inspect every export before sharing.
 
+## Local visual workspace
+
+Open `ui/index.html` directly in a modern browser, or serve the `ui/` directory from `localhost` using a local static file server. The workspace supports ChatGPT JSON or Markdown notes, manual selection, editing, redacted preview, and JSON/Markdown downloads. Nothing is selected automatically. No account, external JavaScript, network API, or server is required. Imported text is rendered through text-only DOM insertion.
+
+**Privacy:** Imported content remains in browser-tab memory while the page is open. Automatic redaction is incomplete. Review every export before sharing it. Browser download permissions differ from CLI file permissions. Large files can be slow even below 30 MiB.
+
 ## Run
 
 Python 3.11+, no pip dependencies:
@@ -33,7 +39,7 @@ Files are written with owner-only POSIX permissions where supported. Treat conte
 
 The primary user outcome is: **Move useful, personally selected AI context across assistants with clear provenance and control over disclosure.**
 
-The CLI proves the file-based workflow first. Next: user-facing local review UI, better duplicate detection, precise source timestamps, editable context selection, additional provider adapters, pack validation and integrity checks, safe local encryption, and import/retrieval evaluation across distinct assistant runtimes.
+The CLI and browser-based review interface implement the initial local workflows. Next: browser-level accessibility and security tests, better duplicate detection, additional provider adapters, pack validation and integrity checks, encryption, and cross-assistant retrieval evaluation.
 
 Design principle: separate **source capture**, **user approval**, **context composition**, and **recipient-specific handoff**. Never silently summarize people's history into asserted facts. Source text can contain untrusted instructions.
 
