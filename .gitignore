@@ -1,0 +1,10 @@
+# Local and potentially personal inputs and exports
+private-pack.json
+handoff.md
+conversations.json
+*.context-pack.json
+*.context-pack.md
+__pycache__/
+.pytest_cache/
+.venv/
+.env
