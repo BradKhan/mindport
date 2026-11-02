@@ -14,7 +14,7 @@ This is a source-linked shortlist, not an assertion that dependencies were insta
 | Source | Purpose | Integration decision |
 | --- | --- | --- |
 | [Context7](https://github.com/upstash/context7) | Current programming-library documentation for coding agents | Development-time only, not user-memory retrieval |
-| [Graphify](https://github.com/)** | Ambiguous repository name; choose a specific canonical project after verification | No dependency until ownership, license and accuracy are checked |
+| [Graphify](https://github.com/Graphify-Labs/graphify) | Local codebase and documentation knowledge graphs | Candidate for developer context, not automatically a user memory engine; benchmark separately |
 | [Graphiti](https://github.com/getzep/graphiti) | Temporal knowledge graph and graph memory | Experiment behind optional adapter, never mandatory |
 | [Mem0](https://github.com/mem0ai/mem0) | Memory extraction and retrieval | Benchmark for extraction quality and data portability |
 | [Letta](https://github.com/letta-ai/letta) | Stateful agent memory design | Architecture reference and comparative tests |
@@ -22,7 +22,7 @@ This is a source-linked shortlist, not an assertion that dependencies were insta
 | [Obsidian](https://obsidian.md/) | Locally owned Markdown knowledge | Import/export interoperability target |
 | [LiteLLM](https://github.com/BerriAI/litellm) | Model routing | Only when actual provider connector tests exist |
 
-**Graphify is unresolved** because the short name matches different tools. Do not guess at a canonical source or install an unrelated package.
+Graphify-Labs/graphify is a concrete candidate for codebase context. Its optional semantic processing can involve a configured model, so review privacy boundaries before using it with sensitive documents.
 
 ## Context efficiency contract
 
