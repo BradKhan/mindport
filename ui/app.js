@@ -2,8 +2,10 @@
 const $ = id => document.getElementById(id);
 const Core = window.MindportCore;
 if (!Core) throw new Error("Mindport parser is unavailable");
-const state = { entries: [], active: null, filenames: [], version: 0, approved: -1 };
+const state = { entries: [], active: null, filenames: [], totalBytes: 0, version: 0, approved: -1 };
 const MAX_VISIBLE = 150;
+const MAX_FILES = 20;
+const MAX_TOTAL_BYTES = 60 * 1024 * 1024;
 const MAX_EXPORT_BYTES = 5 * 1024 * 1024;
 const bytes = s => new TextEncoder().encode(s).length;
 
@@ -80,16 +82,26 @@ function renderEditor() {
 $("sourceFile").addEventListener("change", async event => {
   const files = [...(event.target.files || [])];
   if (!files.length) return;
+  if (state.filenames.length + files.length > MAX_FILES) {
+    status("Maximum 20 source files per session. Clear or narrow your selection.");
+    event.target.value = "";
+    return;
+  }
   const imported = [], succeeded = [], errors = [];
+  let acceptedBytes = 0;
   for (const file of files) {
     try {
       if (file.size > Core.MAX_BYTES) throw new Error("file exceeds 30 MiB");
+      if (state.totalBytes + acceptedBytes + file.size > MAX_TOTAL_BYTES)
+        throw new Error("session exceeds 60 MiB");
       const entries = Core.parseFile(file.name, await file.text());
       entries.forEach((e, i) => {
         e.origin_index = i + 1;
         e.source_file = file.name;
       });
+      if (!entries.length) throw new Error("no supported text entries found");
       imported.push(...entries);
+      acceptedBytes += file.size;
       succeeded.push(file.name + " (" + entries.length + ")");
     } catch (error) {
       errors.push(file.name + ": " + error.message);
@@ -98,6 +110,7 @@ $("sourceFile").addEventListener("change", async event => {
   if (succeeded.length) {
     state.entries.push(...imported);
     state.filenames.push(...succeeded);
+    state.totalBytes += acceptedBytes;
     state.active = null;
     $("workspace").hidden = false;
     $("filter").value = "";
@@ -204,6 +217,7 @@ $("clearAll").addEventListener("click", () => {
   if (!window.confirm("Clear imported information from this tab? Downloaded files are unaffected.")) return;
   state.entries = [];
   state.filenames = [];
+  state.totalBytes = 0;
   state.active = null;
   $("filter").value = "";
   invalidateReview();
