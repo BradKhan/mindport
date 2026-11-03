@@ -118,19 +118,40 @@
     if (data.some(c => c && Array.isArray(c.chat_messages))) return claude(data);
     throw new Error("Unrecognized export. Gemini Takeout activity is not a full conversation export.");
   }
+  function stableId(entry) {
+    // Deterministic display identifier, NOT a cryptographic integrity proof.
+    const key = [entry.provider, entry.source_id, entry.message_id, entry.source_file || ""].join("\u001f");
+    let hash = 2166136261;
+    for (let i = 0; i < key.length; i++) {
+      hash ^= key.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return "mp-" + (hash >>> 0).toString(16).padStart(8, "0");
+  }
   function pack(entries, personal) {
     const chosen = entries.filter(e => e.selected);
+    const seen = new Set();
+    const items = chosen.map((e, index) => {
+      const id = stableId(e);
+      if (seen.has(id)) throw new Error("Duplicate source entries selected. Deselect the duplicate.");
+      seen.add(id);
+      return {
+        id,
+        source: redact(e.source, personal),
+        role: e.role,
+        text: redact(e.edited, personal),
+        origin_index: e.origin_index || index + 1,
+        provider: e.provider,
+        source_id: redact(e.source_id, personal),
+        message_id: redact(e.message_id, personal),
+        ...(e.timestamp === undefined ? {} : { timestamp: e.timestamp })
+      };
+    });
     return {
       schema: "mindport.context-pack.v1",
       privacy: { local_only: true, personal_redaction: personal,
                  secret_redaction: "best_effort", explicit_selection: true },
-      items: chosen.map((e, index) => ({
-        id: "local-" + (index + 1) + "-" + (e.message_id || "item"),
-        source: e.source, role: e.role, text: redact(e.edited, personal),
-        origin_index: e.origin_index || index + 1,
-        provider: e.provider, source_id: e.source_id, message_id: e.message_id,
-        ...(e.timestamp === undefined ? {} : { timestamp: e.timestamp })
-      }))
+      items
     };
   }
   return { parseFile, chatgpt, claude, jsonl, mindportPack, redact, pack, MAX_BYTES };
