@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title description">
-  <title id="title">MINDPORT. Take your context with you.</title>
-  <desc id="description">Ivory editorial typography on charcoal, with a mathematically balanced seven-circle seed of life in matte gold. Inspired by the visual language of Brad Khan.</desc>
+  <title id="title">Mindport. Your intelligence should travel with you.</title>
+  <desc id="description">Mindport editorial banner, ivory type on charcoal with a precisely constructed seven-circle seed of life in matte gold.</desc>
   <rect width="1600" height="560" fill="#181B1B"/>
   <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
-    <text x="91" y="100" font-size="19" font-weight="700" letter-spacing="4" fill="#C59B63">BRAD KHAN / INDEPENDENT SOFTWARE</text>
-    <text x="84" y="255" font-size="126" font-weight="800" letter-spacing="-5" fill="#F5F1E9">MINDPORT</text>
-    <text x="91" y="340" font-size="40" font-weight="400" letter-spacing="-1.2" fill="#E9E5DC">Take your context with you.</text>
-    <text x="93" y="460" font-size="17" font-weight="700" letter-spacing="2.2" fill="#C6A270">PORTABLE CONTEXT  /  PRIVATE BY DESIGN</text>
-    <text x="93" y="516" font-size="17" font-weight="400" fill="#9C9D96">bradkhan.com</text>
+    <text x="91" y="100" font-size="19" font-weight="700" letter-spacing="3.5" fill="#C9A46F">PERSON-OWNED INTELLIGENCE</text>
+    <text x="84" y="251" font-size="126" font-weight="800" letter-spacing="-5" fill="#F5F1E9">MINDPORT</text>
+    <text x="91" y="340" font-size="40" font-weight="400" letter-spacing="-1.3" fill="#E9E5DC">Your intelligence should travel with you.</text>
+    <text x="93" y="458" font-size="17" font-weight="700" letter-spacing="2.2" fill="#C9A46F">MODELS  /  AGENTS  /  APPS  /  DEVICES</text>
+    <text x="93" y="516" font-size="17" fill="#9C9D96">bradkhan.com</text>
   </g>
-  <g fill="none" stroke="#C6A270" stroke-width="2.5" opacity="0.94" transform="translate(1267 280)">
+  <g fill="none" stroke="#C9A46F" stroke-width="2.5" opacity=".94" transform="translate(1267 280)">
     <circle cx="0" cy="0" r="112"/>
     <circle cx="112" cy="0" r="112"/>
     <circle cx="56" cy="96.994845" r="112"/>
