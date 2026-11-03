@@ -4,23 +4,25 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'none'; connect-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Mindport · Local context review</title>
+<title>Mindport · Your intelligence should travel with you</title>
 <link rel="stylesheet" href="./style.css">
+<script src="./core.js" defer></script>
 <script src="./app.js" defer></script>
 </head>
 <body>
 <a href="#library" class="skip">Skip to your context</a>
 <header class="topbar"><div class="brand">mindport<span class="brand-dot">.</span></div><div class="local"><span class="dot"></span>LOCAL ONLY</div></header>
 <main>
-<section class="intro"><p class="eyebrow">PRIVATE CONTEXT WORKSPACE</p><h1>Take your context<br><em>with you.</em></h1><p class="lead">Choose exactly what another assistant gets to know. Inspect, edit, and export on your device.</p>
-<div class="importer"><label class="upload" for="sourceFile"><span class="upload-title">Choose a ChatGPT export or Markdown note</span><span>Supported: conversations.json or .md · up to 30 MiB</span></label><input id="sourceFile" type="file" accept=".json,.md,.markdown,application/json,text/markdown"><p class="privacy">Nothing is sent to a server. This page makes no network requests. Files stay in this browser tab until you close or reload it.</p></div></section>
+<section class="intro"><p class="eyebrow">PERSON-OWNED INTELLIGENCE</p><h1>Your intelligence<br><em>should travel with you.</em></h1><p class="lead">Bring conversations and notes into one private workspace. Choose what matters. Carry it into the next system.</p>
+<div class="importer"><label class="upload" for="sourceFile"><span class="upload-title">Choose your source files</span><span>ChatGPT, Claude, Mindport packs, Markdown, JSONL · 30 MiB per file</span></label><input id="sourceFile" type="file" multiple accept=".json,.jsonl,.md,.markdown,application/json,text/markdown"><p class="privacy">Files are read inside this browser tab. No upload, tracking, account, or automatic inclusion. Imported data disappears when you clear the workspace or close the tab.</p></div></section>
 <section id="library" class="workspace" hidden>
 <div class="workspace-head"><div><h2>Review your context</h2><p id="sourceInfo"></p></div><div class="summary"><strong id="count">0</strong> selected</div></div>
-<div class="toolbar"><label class="searchlabel" for="filter">Search entries</label><input id="filter" type="search" placeholder="Filter by text or conversation…" autocomplete="off"><label class="toggle"><input id="personal" type="checkbox"> Redact email and phone numbers</label></div>
+<div class="toolbar"><label class="searchlabel" for="filter">Search entries</label><input id="filter" type="search" placeholder="Filter by text or conversation…" autocomplete="off"><label class="toggle"><input id="personal" type="checkbox"> Redact email and phone numbers</label><button id="clearAll" type="button" class="clear">Clear workspace</button></div>
 <div class="columns"><div class="records" id="records" role="list" aria-label="Imported entries"></div><section class="editor"><p class="eyebrow">REVIEW BEFORE EXPORT</p><h3 id="editorTitle">Select an entry</h3><p id="editorMeta">Nothing is included by default.</p><label for="editorText">Context to share</label><textarea id="editorText" rows="15" spellcheck="false" disabled></textarea><p class="hint">Editing changes only the copy in this tab, never your source file. Redaction is best effort, not a security guarantee.</p><div class="preview-head"><strong>Export preview</strong><span id="redactionNote"></span></div><pre id="preview" class="preview">No entry selected.</pre></section></div>
-<div class="exportbar"><div><strong>Export selected context</strong><p>Review the preview of each selection before saving. Exported files may contain sensitive information.</p></div><div class="actions"><button id="exportJson" disabled>Download JSON pack</button><button id="exportMd" class="secondary" disabled>Download Markdown</button></div></div>
+<div class="exportbar"><div><strong>Carry only what matters.</strong><p>Export is locked until you review and approve the full selection. Exports are unencrypted files.</p></div><div class="actions"><button id="reviewSelection" type="button" disabled>Review selection</button><button id="exportJson" type="button" disabled>Download JSON</button><button id="exportMd" type="button" class="secondary" disabled>Download Markdown</button></div></div>
+<section id="reviewPane" class="review-pane" hidden><h3>Review everything you are sharing</h3><p>Selected entries, after redaction and edits. This is what the Markdown handoff will contain.</p><pre id="reviewAll" tabindex="0"></pre><label class="toggle"><input id="approved" type="checkbox"> I have inspected this selection and approve the export.</label></section>
 </section>
 <p role="status" id="status" class="status" aria-live="polite"></p>
 </main>
-<footer>Mindport · User-controlled context portability · <a href="https://github.com/BradKhan/mindport" target="_blank" rel="noopener noreferrer">Source code</a></footer>
+<footer>Mindport · Person-owned intelligence · <a href="https://github.com/BradKhan/mindport" target="_blank" rel="noopener noreferrer">Source code</a></footer>
 </body></html>
