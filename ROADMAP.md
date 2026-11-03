@@ -1,33 +1,53 @@
-# Roadmap and delivery gates
+# Mindport roadmap
 
-## Stage 0: Local context portability (this PR)
+Mindport's destination is a **portable, person-owned intelligence layer**. ChatGPT export is the first tested source format, not the scope of the project. See [VISION.md](VISION.md).
 
-User can inspect selected source records, select entries, optionally redact personal fields, export JSON and Markdown, and run deterministic tests. No inference or network dependency.
+## 0. Prove the handoff (current implementation branch)
 
-Gate: passing unit tests, no invented provider support, documented limitations, review of exported content, permissions and copy controls.
+- Local import of ChatGPT text conversations and Markdown notes
+- Inspect, edit, select, best-effort redact, and export versioned context packs
+- Local browser review and Python CLI
+- Source attribution and deterministic tests
 
-## Stage 1: Safer import and curation
+Gate: end-to-end verification with synthetic files, browser QA, independently reviewed privacy limitations. No external provider or model calls.
 
-- [ ] Provider adapters: Claude, Gemini, Markdown directories, JSONL with explicit format mapping.
-- [ ] Preserve message timestamp, original conversation identity, and order.
-- [ ] Interactive local selection and correction, deletion preview, and provenance view.
-- [ ] Redaction review, sensitive-content warnings, encrypted output with audited library.
-- [ ] Pack migration and round-trip tests across versions.
+## 1. Broaden sources and strengthen consent
 
-## Stage 2: Useful cross-provider retrieval
+- Import adapters for Claude, Gemini, and other documented provider exports
+- Markdown folders, Obsidian vaults, JSONL, research/document sources with explicit scope
+- Preserve original source identifiers, timestamps, message ordering, permissions and links
+- Sensitive-data review and validated context pack schema
+- Clear difference between primary source material and machine-generated interpretation
 
-- [ ] Task-based context pack selection within explicit token budgets.
-- [ ] Local full-text retrieval first; optional graph and semantic components only when measured to improve tasks.
-- [ ] Recipient-specific export adapters and transparent import instructions.
-- [ ] Repeatable evaluations: recall, attribution, leakage, usefulness and context cost.
-- [ ] User can edit or delete locally stored memory and independently verify deletion.
+Gate: tested source fixtures, lossless where feasible, explicit unsupported cases, reviewable disclosure.
 
-## Stage 3: Humetheus interoperability
+## 2. Persistent, inspectable memory
 
-- [ ] Standard ingestion and export API, replaceable retrieval backend, provider-agnostic context compiler.
-- [ ] Runtime policies, consent scopes, and portable memory bundles.
-- [ ] Local-first UI and optional encrypted backup selected by the owner.
+- Local durable store with searchable history and user edits
+- Corrections, provenance, deletion and bounded retention
+- Deduplication and linked references without automatic claims of truth
+- Evaluate SQLite FTS first; optional embeddings and temporal graph adapters after benchmarks
 
-## Scope discipline
+Gate: measurable recall, attribution, correction fidelity, deletion verification and no unauthorized disclosure.
 
-Do not claim provider memory import APIs or automatic revocation. Do not train on user data. No analytics, telemetry, remote storage, or execution of imported text. Capture only approved inputs. Keep original data out of public repositories.
+## 3. Context portability across systems
+
+- Task-scoped context compiler respecting recipient, purpose, time and token budget
+- Model and agent handoff adapters with replaceable providers
+- Open file and API contracts for applications and devices
+- End-to-end evaluation across at least two distinct assistant runtimes
+
+Gate: an independently reproducible task where relevant context transfers accurately without leaking unrelated personal material.
+
+## 4. Private synchronization and deeper interoperability
+
+- Optional encrypted sync between owner-controlled devices
+- Local-first backup and recovery, vault portability
+- Humetheus integration with replaceable models and independently governed context
+- Organizational and multi-agent scopes only after an explicit permission model
+
+Gate: threat model, cryptographic review, recovery drills, multi-device and permission-boundary testing.
+
+## Constraints
+
+No mandatory provider account, no silent ingestion, no external upload without explicit authorization, and no executing imported prompts. Keep raw personal exports out of public Git. Future capabilities must be labeled planned until independently demonstrated.
