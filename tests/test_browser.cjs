@@ -43,7 +43,7 @@ test("local browser import, review, approval, download and mobile layout", { tim
         buffer: Buffer.from("This private note is not selected") }
     ]);
     try {
-      await page.locator("#workspace").waitFor({ state: "visible", timeout: 5000 });
+      await page.locator("#library").waitFor({ state: "visible", timeout: 5000 });
     } catch (error) {
       await fs.mkdir("test-artifacts", { recursive: true });
       await page.screenshot({ path: "test-artifacts/mindport-import-failure.png", fullPage: true });
@@ -52,7 +52,7 @@ test("local browser import, review, approval, download and mobile layout", { tim
         core: await page.evaluate(() => typeof window.MindportCore),
         scriptErrors: pageErrors,
         inputMultiple: await page.locator("#sourceFile").getAttribute("multiple"),
-        workspaceHidden: await page.locator("#workspace").getAttribute("hidden")
+        workspaceHidden: await page.locator("#library").getAttribute("hidden")
       };
       throw new Error("Import did not open workspace: " + JSON.stringify(detail));
     }
