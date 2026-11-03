@@ -4,7 +4,7 @@
 
 **Your intelligence should travel with you.**
 
-Memory is too valuable to leave inside a chat window. Mindport is an open, local-first effort to make the knowledge, research, decisions, and context you've accumulated usable across AI models, agents, applications, and devices.
+Memory is too valuable to leave inside a chat window. Mindport is a local-first effort to make the knowledge, research, decisions, and context you've accumulated usable across AI models, agents, applications, and devices.
 
 The ChatGPT importer is the first adapter. It isn't the product's boundary.
 
@@ -61,4 +61,4 @@ The test is straightforward: **Can someone change their models, tools, or device
 
 [Product direction](VISION.md) · [Development roadmap](https://github.com/BradKhan/mindport/blob/feat/local-context-portability-mvp/ROADMAP.md) · [GitHub issues](https://github.com/BradKhan/mindport/issues) · [MVP pull request](https://github.com/BradKhan/mindport/pull/7)
 
-Built by [Brad Khan](https://bradkhan.com). Mindport is a focused component of a broader vision for human-owned intelligence, alongside [Humetheus](https://github.com/BradKhan), [Open ASS](https://github.com/BradKhan/open-ASS), and [Venture Method](https://github.com/cyberagencyorg/venturemethod).
+Built by [Brad Khan](https://bradkhan.com). Mindport is a focused component of a broader vision for human-owned intelligence, alongside Humetheus, [Open ASS](https://github.com/BradKhan/open-ASS), and [Venture Method](https://github.com/cyberagencyorg/venturemethod).
