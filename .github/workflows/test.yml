@@ -19,3 +19,24 @@ jobs:
           node-version: '22'
       - run: node --check ui/core.js && node --check ui/app.js
       - run: node --test tests/test_core.cjs
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save --ignore-scripts playwright@1.57.0
+      - run: npx playwright install chromium --with-deps
+      - run: node --test tests/test_browser.cjs
+      - name: Synthetic browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mindport-browser-qa
+          path: test-artifacts/
+          if-no-files-found: ignore
