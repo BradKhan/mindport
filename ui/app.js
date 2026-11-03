@@ -112,7 +112,7 @@ $("sourceFile").addEventListener("change", async event => {
     state.filenames.push(...succeeded);
     state.totalBytes += acceptedBytes;
     state.active = null;
-    $("workspace").hidden = false;
+    $("library").hidden = false;
     $("filter").value = "";
     invalidateReview();
     setCounts();
@@ -223,6 +223,6 @@ $("clearAll").addEventListener("click", () => {
   invalidateReview();
   setCounts();
   renderEditor();
-  $("workspace").hidden = true;
+  $("library").hidden = true;
   status("Cleared this tab. Previously downloaded files remain on your device.");
 });
