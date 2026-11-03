@@ -73,6 +73,6 @@ The unit of progress is an independently reproducible user outcome, not the numb
 
 ## Related projects
 
-Mindport is the portability, curation and context interface. [Humetheus](https://github.com/BradKhan) is the broader ambition for private, user-owned intelligence, model routing and agent workflows. [Open ASS](https://github.com/BradKhan/open-ASS) supplies engineering practices and context routing; [Venture Method](https://github.com/cyberagencyorg/venturemethod) supports product discovery and evaluation.
+Mindport is the portability, curation and context interface. Humetheus is the broader ambition for private, user-owned intelligence, model routing and agent workflows. [Open ASS](https://github.com/BradKhan/open-ASS) supplies engineering practices and context routing; [Venture Method](https://github.com/cyberagencyorg/venturemethod) supports product discovery and evaluation.
 
 The projects can interoperate without becoming mandatory dependencies of one another.
