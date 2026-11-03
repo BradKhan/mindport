@@ -20,7 +20,7 @@ jobs:
       - run: node --check ui/core.js && node --check ui/app.js
       - run: node --test tests/test_core.cjs
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
