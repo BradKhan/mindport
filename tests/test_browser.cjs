@@ -17,6 +17,9 @@ test("local browser import, review, approval, download and mobile layout", { tim
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 850 }, acceptDownloads: true });
     const outgoing = [];
+    const pageErrors = [];
+    page.on("pageerror", error => pageErrors.push(error.message));
+    page.on("console", message => { if (message.type() === "error") pageErrors.push(message.text()); });
     await page.route("**/*", route => {
       const url = new URL(route.request().url());
       if (url.hostname !== "127.0.0.1") {
@@ -39,7 +42,20 @@ test("local browser import, review, approval, download and mobile layout", { tim
       { name: "notes.md", mimeType: "text/markdown",
         buffer: Buffer.from("This private note is not selected") }
     ]);
-    await page.locator("#workspace").waitFor({ state: "visible" });
+    try {
+      await page.locator("#workspace").waitFor({ state: "visible", timeout: 5000 });
+    } catch (error) {
+      await fs.mkdir("test-artifacts", { recursive: true });
+      await page.screenshot({ path: "test-artifacts/mindport-import-failure.png", fullPage: true });
+      const detail = {
+        status: await page.locator("#status").textContent(),
+        core: await page.evaluate(() => typeof window.MindportCore),
+        scriptErrors: pageErrors,
+        inputMultiple: await page.locator("#sourceFile").getAttribute("multiple"),
+        workspaceHidden: await page.locator("#workspace").getAttribute("hidden")
+      };
+      throw new Error("Import did not open workspace: " + JSON.stringify(detail));
+    }
     assert.equal(await page.locator(".record").count(), 2);
     assert.equal(await page.locator("#count").textContent(), "0");
     assert.equal(await page.locator("#exportJson").isDisabled(), true);
