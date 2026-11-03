@@ -4,7 +4,6 @@ Explicitly selected inputs only. No network calls, inference, or automatic uploa
 """
 from __future__ import annotations
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -29,47 +28,16 @@ def redact(value: str, personal: bool = False) -> str:
     return value
 
 
+import mindport_sources
+
+
 def messages_from_chatgpt(data: object):
-    if not isinstance(data, list):
-        raise ValueError("Expected a ChatGPT conversations.json array")
-    for convo in data:
-        if not isinstance(convo, dict):
-            continue
-        title = str(convo.get("title") or "Untitled")
-        mapping = convo.get("mapping", {})
-        if not isinstance(mapping, dict):
-            continue
-        for node_id, node in mapping.items():
-            if not isinstance(node, dict):
-                continue
-            message = node.get("message")
-            if not isinstance(message, dict):
-                continue
-            author = message.get("author") or {}
-            role = author.get("role") if isinstance(author, dict) else None
-            if role not in ("user", "assistant"):
-                continue
-            body = message.get("content") or {}
-            if not isinstance(body, dict):
-                continue
-            parts = body.get("parts") or []
-            if not isinstance(parts, list):
-                continue
-            text = "\n".join(p for p in parts if isinstance(p, str)).strip()
-            if text:
-                yield {"source": title, "role": role, "text": text}
+    """Compatibility wrapper around the strict source adapter."""
+    return iter(mindport_sources.chatgpt(data))
 
 
 def load_source(path: Path, kind: str):
-    if not path.is_file() or path.is_symlink():
-        raise ValueError("Input must be a regular, non-symlink file")
-    if path.stat().st_size > MAX_FILE_BYTES:
-        raise ValueError("Input exceeds 30 MiB limit")
-    if kind == "chatgpt":
-        return list(messages_from_chatgpt(json.loads(path.read_text(encoding="utf-8"))))
-    if kind == "markdown":
-        return [{"source": path.name, "role": "note", "text": path.read_text(encoding="utf-8")}]
-    raise ValueError("Unsupported input format")
+    return mindport_sources.load(path, kind)
 
 
 def build_pack(path: Path, kind: str, indexes: list[int], personal: bool):
@@ -83,9 +51,16 @@ def build_pack(path: Path, kind: str, indexes: list[int], personal: bool):
         item = entries[i - 1]
         text = redact(item["text"], personal).strip()
         if text:
-            chosen.append({"id": str(uuid.uuid5(uuid.NAMESPACE_URL, str(path.name) + ":" + str(i))),
-                           "source": item["source"], "role": item["role"],
-                           "text": text, "origin_index": i})
+            identifier = f"{item.get('provider', kind)}:{item.get('source_id', path.name)}:{item.get('message_id', i)}"
+            entry = {"id": str(uuid.uuid5(uuid.NAMESPACE_URL, identifier)),
+                     "source": item["source"], "role": item["role"],
+                     "text": text, "origin_index": i,
+                     "provider": item.get("provider", kind),
+                     "source_id": item.get("source_id", path.name),
+                     "message_id": item.get("message_id", str(i))}
+            if "timestamp" in item:
+                entry["timestamp"] = item["timestamp"]
+            chosen.append(entry)
     return {"schema": "mindport.context-pack.v1",
             "privacy": {"local_only": True, "personal_redaction": personal,
                         "secret_redaction": "best_effort", "explicit_selection": True},
@@ -110,9 +85,17 @@ def validate(pack: dict):
     items = pack.get("items")
     if not isinstance(items, list):
         raise ValueError("Invalid items collection")
+    seen = set()
     for item in items:
         if not isinstance(item, dict) or any(not isinstance(item.get(k), str) for k in ("id", "source", "role", "text")):
             raise ValueError("Invalid item")
+        if item["id"] in seen:
+            raise ValueError("Duplicate item id")
+        seen.add(item["id"])
+        if any(key in item and not isinstance(item[key], str) for key in ("provider", "source_id", "message_id")):
+            raise ValueError("Invalid item provenance")
+        if "timestamp" in item and not isinstance(item["timestamp"], (str, int, float)):
+            raise ValueError("Invalid timestamp")
     return items
 
 
@@ -123,7 +106,7 @@ def main(argv=None):
     pack = sub.add_parser("pack", help="Explicitly select context entries")
     for p in (scan, pack):
         p.add_argument("file", type=Path)
-        p.add_argument("--format", choices=("chatgpt", "markdown"), required=True)
+        p.add_argument("--format", choices=("auto", "chatgpt", "claude", "markdown", "markdown-dir", "jsonl"), required=True)
     pack.add_argument("--select", type=int, nargs="+", required=True, metavar="N")
     pack.add_argument("--redact-personal", action="store_true")
     pack.add_argument("--output", type=Path, required=True)
@@ -141,7 +124,7 @@ def main(argv=None):
             items = load_source(args.file, args.format)
             if args.cmd == "inspect":
                 for n, item in enumerate(items, 1):
-                    print(f"{n:4}  {item['role']:9} {item['source'][:42]:42} {redact(item['text'])[:110]!r}")
+                    print(f"{n:4}  {item['provider']:12} {item['role']:9} {item['source'][:32]:32} {redact(item['text'])[:96]!r}")
             else:
                 obj = build_pack(args.file, args.format, args.select, args.redact_personal)
                 save(args.output, obj)
