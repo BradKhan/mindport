@@ -17,4 +17,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check ui/app.js
+      - run: node --check ui/core.js && node --check ui/app.js
+      - run: node --test tests/test_core.cjs
