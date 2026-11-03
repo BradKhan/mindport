@@ -77,9 +77,6 @@ function renderEditor() {
   $("redactionNote").textContent = e ? "What this entry would export" : "";
   renderList();
 }
-function selectEntryById() {
-  renderEditor();
-}
 $("sourceFile").addEventListener("change", async event => {
   const files = [...(event.target.files || [])];
   if (!files.length) return;
@@ -124,7 +121,6 @@ $("editorText").addEventListener("input", event => {
   invalidateReview();
   // Avoid stealing focus from the text editor while refreshing the row excerpt.
   const shown = [...$("records").querySelectorAll(".record")];
-  const index = state.entries.indexOf(state.active);
   const needle = $("filter").value.toLocaleLowerCase().trim();
   const matching = state.entries.filter(e => !needle ||
     (e.source + " " + e.provider + " " + e.role + " " + e.edited).toLocaleLowerCase().includes(needle));
@@ -147,14 +143,21 @@ function markdown(items) {
   return result;
 }
 $("reviewSelection").addEventListener("click", () => {
-  const items = selectedPack().items;
+  let draft;
+  try {
+    draft = selectedPack();
+  } catch (error) {
+    status(error.message);
+    return;
+  }
+  const items = draft.items;
   if (!items.length) return;
   if (items.some(e => !e.text.trim())) {
     status("A selected entry is empty. Edit it or deselect it before export.");
     return;
   }
   const md = markdown(items);
-  if (bytes(md) > MAX_EXPORT_BYTES) {
+  if (bytes(md) > MAX_EXPORT_BYTES || bytes(JSON.stringify(draft)) > MAX_EXPORT_BYTES) {
     status("Selected context exceeds 5 MiB. Choose a smaller, task-specific set.");
     return;
   }
