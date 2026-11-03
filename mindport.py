@@ -53,11 +53,11 @@ def build_pack(path: Path, kind: str, indexes: list[int], personal: bool):
         if text:
             identifier = f"{item.get('provider', kind)}:{item.get('source_id', path.name)}:{item.get('message_id', i)}"
             entry = {"id": str(uuid.uuid5(uuid.NAMESPACE_URL, identifier)),
-                     "source": item["source"], "role": item["role"],
+                     "source": redact(item["source"], personal), "role": item["role"],
                      "text": text, "origin_index": i,
                      "provider": item.get("provider", kind),
-                     "source_id": item.get("source_id", path.name),
-                     "message_id": item.get("message_id", str(i))}
+                     "source_id": redact(str(item.get("source_id", path.name)), personal),
+                     "message_id": redact(str(item.get("message_id", i)), personal)}
             if "timestamp" in item:
                 entry["timestamp"] = item["timestamp"]
             chosen.append(entry)
