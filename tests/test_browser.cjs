@@ -103,6 +103,7 @@ test("local browser import, review, approval, download and mobile layout", { tim
         {role:"user",content:"Portable message from another runtime"}
       ]}))
     });
+    await page.waitForFunction(() => document.querySelector("#sourceInfo")?.textContent.includes("3 entries"), null, {timeout: 5000});
     assert.equal(await page.locator(".record").count(), 3);
     assert.match(await page.locator("#sourceInfo").textContent(), /3 entries/);
     assert.equal(await page.locator("#exportJsonl").isDisabled(), true);
