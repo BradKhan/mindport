@@ -106,7 +106,7 @@ def main(argv=None):
     pack = sub.add_parser("pack", help="Explicitly select context entries")
     for p in (scan, pack):
         p.add_argument("file", type=Path)
-        p.add_argument("--format", choices=("auto", "chatgpt", "claude", "messages", "gemini-api", "pack", "markdown", "markdown-dir", "jsonl"), required=True)
+        p.add_argument("--format", choices=("auto", "chatgpt", "claude", "messages", "gemini-api", "pack", "markdown", "text", "markdown-dir", "jsonl"), required=True)
     pack.add_argument("--select", type=int, nargs="+", required=True, metavar="N")
     pack.add_argument("--redact-personal", action="store_true")
     pack.add_argument("--output", type=Path, required=True)
