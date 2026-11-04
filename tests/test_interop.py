@@ -95,6 +95,18 @@ class InteropTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             import_messages({"messages": [{"role": "user", "content": [{"type": "image_url"}]}]})
 
+    def test_text_and_ndjson_without_provider_accounts(self):
+        with TemporaryDirectory() as folder:
+            note = Path(folder) / "my-notes.txt"
+            note.write_text("Locally owned knowledge", encoding="utf-8")
+            self.assertEqual(mindport_sources.load(note, "auto")[0]["text"],
+                             "Locally owned knowledge")
+            nd = Path(folder) / "portable.ndjson"
+            nd.write_text('{"source":"note","role":"note","text":"Reimported",'
+                          '"provider":"personal-agent"}\\n', encoding="utf-8")
+            records = mindport_sources.load(nd, "auto")
+            self.assertEqual(records[0]["provider"], "personal-agent")
+
     def test_cli_convert_only_selected_pack(self):
         with TemporaryDirectory() as d:
             source = Path(d) / "chat.json"
