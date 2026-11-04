@@ -106,7 +106,7 @@ def main(argv=None):
     pack = sub.add_parser("pack", help="Explicitly select context entries")
     for p in (scan, pack):
         p.add_argument("file", type=Path)
-        p.add_argument("--format", choices=("auto", "chatgpt", "claude", "markdown", "markdown-dir", "jsonl"), required=True)
+        p.add_argument("--format", choices=("auto", "chatgpt", "claude", "messages", "gemini-api", "pack", "markdown", "markdown-dir", "jsonl"), required=True)
     pack.add_argument("--select", type=int, nargs="+", required=True, metavar="N")
     pack.add_argument("--redact-personal", action="store_true")
     pack.add_argument("--output", type=Path, required=True)
@@ -123,6 +123,10 @@ def main(argv=None):
     select_context.add_argument("--query", required=True)
     select_context.add_argument("--max-chars", type=int, default=8000)
     select_context.add_argument("--output", type=Path, required=True)
+    convert = sub.add_parser("convert", help="Convert an approved pack to interoperable JSONL")
+    convert.add_argument("file", type=Path)
+    convert.add_argument("--to", choices=("jsonl",), required=True)
+    convert.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if args.cmd in ("inspect", "pack"):
@@ -145,6 +149,11 @@ def main(argv=None):
                 for item in entries:
                     if args.query.casefold() in item["text"].casefold():
                         print(f"{item['id']} ({item['source']}): {item['text'][:220]}")
+            elif args.cmd == "convert":
+                from context_compiler import write_private
+                from mindport_interop import to_jsonl
+                write_private(args.output, to_jsonl({"schema": "mindport.context-pack.v1", "items": entries}))
+                print(f"Converted {len(entries)} approved entries to {args.output}")
             elif args.cmd == "compose":
                 from context_compiler import compose as compile_context, write_private
                 content, ids = compile_context(entries, args.query, args.max_chars)
