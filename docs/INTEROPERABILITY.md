@@ -16,6 +16,8 @@ Mindport must never depend on one AI provider, chat UI, model API, storage engin
 | Mindport v1 context pack JSON | Yes | Yes | Previously selected entries may be reselected and curated |
 | Mindport JSONL records | Yes | Yes | Neutral line-delimited text records with optional provenance |
 | Markdown notes | Yes | Yes | Single files |
+| Plain UTF-8 text (`.txt`) | Yes | Yes | A text file becomes a user-curated note, not a fabricated conversation |
+| Newline-delimited JSON (`.ndjson`) | Yes | Yes | Alias of the documented JSONL contract |
 | Markdown/Obsidian folder | Yes | Files individually | CLI requires an explicitly chosen folder, rejects symlinks |
 
 **Any application, model, or agent capable of writing the documented JSONL contract or a recognized message object can participate.** That is format interoperability, not a promise of a vendor connection or lossless import.
