@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import mindport_interop
 
 MAX_BYTES = 30 * 1024 * 1024
 MAX_NOTES = 500
@@ -121,7 +122,8 @@ def jsonl(raw):
             raise ValueError(f"JSONL line {line_no} requires source, role, text")
         if row["text"].strip():
             result.append(_record(row["source"], row["role"], row["text"].strip(),
-                                  "jsonl", row.get("source_id") or row["source"],
+                                  row.get("provider") if isinstance(row.get("provider"), str) else "jsonl",
+                                  row.get("source_id") or row["source"],
                                   row.get("message_id") or f"line-{line_no}",
                                   row.get("timestamp")))
     return result
@@ -169,15 +171,23 @@ def load(path: Path, kind: str):
             kind = "jsonl"
         else:
             data = json.loads(raw)
+            if isinstance(data, dict) and data.get("schema") == "mindport.context-pack.v1":
+                return mindport_interop.import_pack(data)
+            if isinstance(data, dict) and any(
+                isinstance(data.get(key), list)
+                for key in ("messages", "input", "contents", "conversations")
+            ):
+                return mindport_interop.import_messages(data)
             if not isinstance(data, list):
-                raise ValueError("Unknown JSON export format; specify a supported adapter")
+                raise ValueError("Unknown JSON format; supply a documented adapter")
             if any(isinstance(c, dict) and isinstance(c.get("mapping"), dict) for c in data):
-                kind = "chatgpt"
-            elif any(isinstance(c, dict) and isinstance(c.get("chat_messages"), list) for c in data):
-                kind = "claude"
-            else:
-                raise ValueError("Unknown export format; only ChatGPT or Claude conversation JSON is detected")
-            return chatgpt(data) if kind == "chatgpt" else claude(data)
+                return chatgpt(data)
+            if any(isinstance(c, dict) and isinstance(c.get("chat_messages"), list) for c in data):
+                return claude(data)
+            if any(isinstance(c, dict) and c.get("role") in ("user", "assistant", "model", "human")
+                   and ("content" in c or "parts" in c) for c in data):
+                return mindport_interop.import_messages(data)
+            raise ValueError("Unknown JSON structure; no supported adapter matched")
     if kind == "markdown":
         return [_record(path.name, "note", raw, "markdown", path.name, path.name)] if raw.strip() else []
     if kind == "jsonl":
@@ -187,4 +197,10 @@ def load(path: Path, kind: str):
         return chatgpt(data)
     if kind == "claude":
         return claude(data)
+    if kind == "messages":
+        return mindport_interop.import_messages(data)
+    if kind == "gemini-api":
+        return mindport_interop.import_messages(data, "gemini-api")
+    if kind == "pack":
+        return mindport_interop.import_pack(data)
     raise ValueError("Unsupported input format")
