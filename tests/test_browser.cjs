@@ -83,8 +83,29 @@ test("local browser import, review, approval, download and mobile layout", { tim
     assert.equal(pack.items[0].source_id, "synthetic-chat");
     assert.doesNotMatch(JSON.stringify(pack), /person@example.com|sk-abcdefghij|not selected/);
 
+    assert.equal(await page.locator("#exportJsonl").isEnabled(), true);
+    const [jsonlDownload] = await Promise.all([
+      page.waitForEvent("download"),
+      page.locator("#exportJsonl").click()
+    ]);
+    const jsonlText = await fs.readFile(await jsonlDownload.path(), "utf8");
+    const jsonlEntries = jsonlText.trim().split("\\n").map(line => JSON.parse(line));
+    assert.equal(jsonlEntries.length, 1);
+    assert.equal(jsonlEntries[0].provider, "claude");
+    assert.doesNotMatch(jsonlText, /person@example.com|sk-abcdefghij|not selected/);
+
     await page.locator(".record").last().locator('input[type="checkbox"]').check();
     assert.equal(await page.locator("#exportJson").isDisabled(), true);
+
+    await page.locator("#sourceFile").setInputFiles({
+      name: "openai-compatible-messages.json", mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify({messages:[
+        {role:"user",content:"Portable message from another runtime"}
+      ]}))
+    });
+    assert.equal(await page.locator(".record").count(), 3);
+    assert.match(await page.locator("#sourceInfo").textContent(), /3 entries/);
+    assert.equal(await page.locator("#exportJsonl").isDisabled(), true);
 
     await fs.mkdir("test-artifacts", { recursive: true });
     await page.screenshot({ path: "test-artifacts/mindport-desktop.png", fullPage: true });
