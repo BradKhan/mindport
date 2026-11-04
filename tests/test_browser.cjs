@@ -89,7 +89,7 @@ test("local browser import, review, approval, download and mobile layout", { tim
       page.locator("#exportJsonl").click()
     ]);
     const jsonlText = await fs.readFile(await jsonlDownload.path(), "utf8");
-    const jsonlEntries = jsonlText.trim().split("\\n").map(line => JSON.parse(line));
+    const jsonlEntries = jsonlText.trim().split(/\r?\n/).map(line => JSON.parse(line));
     assert.equal(jsonlEntries.length, 1);
     assert.equal(jsonlEntries[0].provider, "claude");
     assert.doesNotMatch(jsonlText, /person@example.com|sk-abcdefghij|not selected/);
