@@ -186,7 +186,7 @@
         && ["messages", "input", "contents", "conversations"].some(key => Array.isArray(data[key]))) {
       return messageInterchange(data);
     }
-    throw new Error("Unrecognized JSON. Gemini Takeout activity is not a full conversation export.");
+    throw new Error("Unrecognized export JSON. Gemini Takeout activity is not a full conversation export.");
   }
   function stableId(entry) {
     // Deterministic display identifier, NOT a cryptographic integrity proof.
