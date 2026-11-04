@@ -55,7 +55,7 @@ test("Mindport packs can be reimported without selecting everything", () => {
 test("Unrecognized and Gemini activity JSON are not guessed", () => {
   assert.throws(() => Core.parseFile("MyActivity.json",
     '[{"title":"activity only"}]'), /Unrecognized export/);
-  assert.throws(() => Core.parseFile("bad.json", '{"unknown":true}'), /Unknown JSON/);
+  assert.throws(() => Core.parseFile("bad.json", '{"unknown":true}'), /Unrecognized export/);
   assert.throws(() => Core.parseFile("script.html", "<script/>"), /Choose a/);
 });
 
