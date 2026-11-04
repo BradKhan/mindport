@@ -66,7 +66,7 @@ test("plain TXT and NDJSON work without a provider export format", () => {
   const note = Core.parseFile("agent-transcript.txt", "Locally saved session");
   assert.equal(note[0].role, "note");
   assert.equal(note[0].provider, "text");
-  const stream = '{"source":"note","role":"note","text":"Reimported","provider":"local-agent"}\\n';
+  const stream = '{"source":"note","role":"note","text":"Reimported","provider":"local-agent"}\n';
   const records = Core.parseFile("context.ndjson", stream);
   assert.equal(records.length, 1);
   assert.equal(records[0].provider, "local-agent");
