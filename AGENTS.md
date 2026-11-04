@@ -9,3 +9,18 @@ Run `python3 -m unittest discover -s tests -v` and report actual results. Includ
 Venture Method is used selectively for outcome definition, evidence-based decisions and adversarial review. Do not install the whole framework as a runtime dependency.
 
 Use the reusable context/retrieval catalog at references/REUSE.md; do not add dependencies simply because they are fashionable.
+
+## Non-negotiable interoperability requirement
+
+Mindport is a **person-owned intelligence protocol and product**, not a ChatGPT/Claude migration tool. Every feature must preserve provider, runtime, model, agent, and storage independence. Read [docs/INTEROPERABILITY.md](docs/INTEROPERABILITY.md) and [schemas/context-pack.v1.schema.json](schemas/context-pack.v1.schema.json) before changing imports, exports, storage, or memory.
+
+- Define and test a provider-neutral record before implementing vendor-specific behavior.
+- A new source requires an adapter, not a special case in the memory model.
+- Do not build the model provider, inference router, vector database, or cloud vendor into the core format.
+- Import/export must work offline with documented open JSON/JSONL formats before adding hosted integrations.
+- Distinguish a provider's **API request shape** from an actual **account export**. Never claim the latter on the basis of the former.
+- Future adapters must retain provenance, disclose unsupported content, resist automatic privilege promotion, and pass a pack/JSONL round-trip.
+- Preserve compatibility with existing v1 packs or add an explicit versioned migration with tests. Do not mutate historical source text in place.
+- Include Python and JavaScript contract tests. The public UI and CLI must agree on supported formats and security boundaries.
+
+Existing source adapters are convenience entry points, never the product definition.
