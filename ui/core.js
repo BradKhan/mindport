@@ -85,7 +85,7 @@
           typeof e.text !== "string" || typeof e.source !== "string")
         throw new Error("JSONL line " + (index + 1) + " requires source, role and text.");
       return e.text.trim()
-        ? [normalized("jsonl", e.source, e.role, e.text.trim(),
+        ? [normalized(typeof e.provider === "string" ? e.provider : "jsonl", e.source, e.role, e.text.trim(),
                       e.source_id || e.source, e.message_id || "line-" + (index + 1), e.timestamp)]
         : [];
     });
