@@ -103,7 +103,7 @@ class InteropTests(unittest.TestCase):
                              "Locally owned knowledge")
             nd = Path(folder) / "portable.ndjson"
             nd.write_text('{"source":"note","role":"note","text":"Reimported",'
-                          '"provider":"personal-agent"}\\n', encoding="utf-8")
+                          '"provider":"personal-agent"}\n', encoding="utf-8")
             records = mindport_sources.load(nd, "auto")
             self.assertEqual(records[0]["provider"], "personal-agent")
 
