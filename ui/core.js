@@ -170,10 +170,10 @@
   function parseFile(filename, raw) {
     if (typeof raw !== "string" || new TextEncoder().encode(raw).length > MAX_BYTES)
       throw new Error("File exceeds 30 MiB.");
-    if (/\.(md|markdown)$/i.test(filename))
-      return [normalized("markdown", filename, "note", raw, filename, filename)];
-    if (/\.jsonl$/i.test(filename)) return jsonl(raw);
-    if (!/\.json$/i.test(filename)) throw new Error("Choose a .json, .jsonl or Markdown file.");
+    if (/\.(md|markdown|txt)$/i.test(filename))
+      return [normalized(/\.txt$/i.test(filename) ? "text" : "markdown", filename, "note", raw, filename, filename)];
+    if (/\.(jsonl|ndjson)$/i.test(filename)) return jsonl(raw);
+    if (!/\.json$/i.test(filename)) throw new Error("Choose a .json, .jsonl, .ndjson, .md or .txt file.");
     let data;
     try { data = JSON.parse(raw); } catch (_) { throw new Error("Invalid JSON file."); }
     if (data?.schema === "mindport.context-pack.v1") return mindportPack(data);
