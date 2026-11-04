@@ -1,0 +1,18 @@
+# Local and potentially personal inputs and exports
+private-pack.json
+handoff.md
+conversations.json
+*.context-pack.json
+*.context-pack.md
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+
+# Browser exports, local test artifacts and dependencies
+mindport-context-pack.json
+mindport-handoff.md
+*.mindport-context.json
+test-artifacts/
+node_modules/
+*.pyc
