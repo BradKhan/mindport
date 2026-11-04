@@ -167,7 +167,9 @@ def load(path: Path, kind: str):
     if kind == "auto":
         if path.suffix.lower() in (".md", ".markdown"):
             kind = "markdown"
-        elif path.suffix.lower() == ".jsonl":
+        elif path.suffix.lower() == ".txt":
+            kind = "text"
+        elif path.suffix.lower() in (".jsonl", ".ndjson"):
             kind = "jsonl"
         else:
             data = json.loads(raw)
@@ -188,8 +190,8 @@ def load(path: Path, kind: str):
                    and ("content" in c or "parts" in c) for c in data):
                 return mindport_interop.import_messages(data)
             raise ValueError("Unknown JSON structure; no supported adapter matched")
-    if kind == "markdown":
-        return [_record(path.name, "note", raw, "markdown", path.name, path.name)] if raw.strip() else []
+    if kind in ("markdown", "text"):
+        return [_record(path.name, "note", raw, kind, path.name, path.name)] if raw.strip() else []
     if kind == "jsonl":
         return jsonl(raw)
     data = json.loads(raw)
