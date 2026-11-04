@@ -44,7 +44,10 @@ def _messages(items, source, source_id, provider):
     for index, msg in enumerate(items, 1):
         if not isinstance(msg, dict):
             raise ValueError(f"Message {index} must be an object")
-        role = {"human": "user", "model": "assistant"}.get(msg.get("role"), msg.get("role"))
+        raw_role = msg.get("role")
+        if not isinstance(raw_role, str):
+            raise ValueError(f"Message {index} requires a string role")
+        role = {"human": "user", "model": "assistant"}.get(raw_role, raw_role)
         if role not in ("user", "assistant"):
             # System, developer and tool messages are deliberately outside the
             # owner-authored conversation record and are not silently promoted.
@@ -120,6 +123,8 @@ def import_pack(data):
         if item["id"] in ids:
             raise ValueError("Duplicate pack item IDs")
         ids.add(item["id"])
+        if any(key in item and not isinstance(item[key], str) for key in ("provider", "source_id", "message_id")):
+            raise ValueError(f"Invalid provenance in pack item {index}")
         row = _record(
             item["source"], item["role"], item["text"],
             item.get("provider") or "mindport",
