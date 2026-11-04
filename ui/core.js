@@ -90,6 +90,71 @@
         : [];
     });
   }
+  // Message-array interchange for OpenAI-compatible applications, Ollama,
+  // Anthropic Messages and Gemini API-shaped data. Not an account export.
+  function plainText(value) {
+    if (typeof value === "string") return value.trim();
+    if (!Array.isArray(value)) return "";
+    return value.filter(v => v && typeof v === "object" &&
+      [undefined, "text", "input_text", "output_text"].includes(v.type) &&
+      typeof v.text === "string").map(v => v.text).join("\n").trim();
+  }
+  function readMessages(items, source, sourceId, provider) {
+    if (!Array.isArray(items) || items.length === 0)
+      throw new Error("A nonempty messages array is required.");
+    const result = [];
+    items.forEach((msg, i) => {
+      if (!msg || typeof msg !== "object" || Array.isArray(msg))
+        throw new Error("Invalid message at index " + i);
+      const role = ({ human: "user", model: "assistant" })[msg.role] || msg.role;
+      // System, developer and tool instructions are not promoted to memory.
+      if (!["user", "assistant"].includes(role)) return;
+      const text = plainText(msg.content === undefined ? msg.parts : msg.content);
+      if (!text) return;
+      result.push(normalized(provider, source, role, text, sourceId,
+        msg.id || msg.uuid || "message-" + (i + 1), msg.timestamp ?? msg.created_at));
+    });
+    if (!result.length) throw new Error("No supported user or assistant text found.");
+    return result;
+  }
+  function messageInterchange(data) {
+    if (Array.isArray(data))
+      return readMessages(data, "API message array", "api-message-array", "messages");
+    if (!data || typeof data !== "object")
+      throw new Error("Expected an API-shaped message array or object.");
+    if (Array.isArray(data.contents))
+      return readMessages(data.contents, data.title || "Gemini API conversation",
+        data.id || "gemini-api", "gemini-api");
+    if (Array.isArray(data.conversations)) {
+      if (!data.conversations.length) throw new Error("No conversations found.");
+      return data.conversations.flatMap((c, i) => {
+        if (!c || !Array.isArray(c.messages))
+          throw new Error("Conversation " + (i + 1) + " is missing messages.");
+        return readMessages(c.messages, c.title || c.name || "Conversation " + (i + 1),
+          c.id || "conversation-" + (i + 1), "messages");
+      });
+    }
+    for (const key of ["messages", "input"]) {
+      if (Array.isArray(data[key]))
+        return readMessages(data[key], data.title || "API conversation",
+          data.id || "api-messages", "messages");
+    }
+    throw new Error("Unrecognized message interchange structure.");
+  }
+  function toJSONL(pack) {
+    if (!pack || pack.schema !== "mindport.context-pack.v1" || !Array.isArray(pack.items))
+      throw new Error("Expected a Mindport context pack.");
+    return pack.items.map((item, i) => {
+      if (!item || ["source", "role", "text"].some(key => typeof item[key] !== "string")
+          || !["user", "assistant", "note"].includes(item.role))
+        throw new Error("Invalid entry " + (i + 1));
+      const row = {};
+      for (const key of ["source", "role", "text", "provider", "source_id", "message_id", "timestamp"]) {
+        if (Object.prototype.hasOwnProperty.call(item, key)) row[key] = item[key];
+      }
+      return JSON.stringify(row);
+    }).join("\n") + (pack.items.length ? "\n" : "");
+  }
   function mindportPack(data) {
     if (data?.schema !== "mindport.context-pack.v1" || !Array.isArray(data.items))
       throw new Error("Invalid Mindport context pack.");
@@ -112,11 +177,16 @@
     let data;
     try { data = JSON.parse(raw); } catch (_) { throw new Error("Invalid JSON file."); }
     if (data?.schema === "mindport.context-pack.v1") return mindportPack(data);
-    if (!Array.isArray(data)) throw new Error("Unknown JSON format. Select a documented export.");
-    if (data.some(c => c && typeof c.mapping === "object" && c.mapping))
-      return chatgpt(data);
-    if (data.some(c => c && Array.isArray(c.chat_messages))) return claude(data);
-    throw new Error("Unrecognized export. Gemini Takeout activity is not a full conversation export.");
+    if (Array.isArray(data)) {
+      if (data.some(c => c && typeof c.mapping === "object" && c.mapping)) return chatgpt(data);
+      if (data.some(c => c && Array.isArray(c.chat_messages))) return claude(data);
+      if (data.some(c => c && ["user", "assistant", "human", "model"].includes(c.role)
+          && ("content" in c || "parts" in c))) return messageInterchange(data);
+    } else if (data && typeof data === "object"
+        && ["messages", "input", "contents", "conversations"].some(key => Array.isArray(data[key]))) {
+      return messageInterchange(data);
+    }
+    throw new Error("Unrecognized JSON. Gemini Takeout activity is not a full conversation export.");
   }
   function stableId(entry) {
     // Deterministic display identifier, NOT a cryptographic integrity proof.
@@ -154,5 +224,5 @@
       items
     };
   }
-  return { parseFile, chatgpt, claude, jsonl, mindportPack, redact, pack, MAX_BYTES };
+  return { parseFile, chatgpt, claude, jsonl, mindportPack, messageInterchange, toJSONL, redact, pack, MAX_BYTES };
 });
