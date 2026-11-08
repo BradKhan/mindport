@@ -1,0 +1,23 @@
+{
+  "schema": "mindport.repo-bridge.v0",
+  "repository": "BradKhan/mindport",
+  "entrypoints": [
+    "AGENTS.md",
+    "CONTEXT.md",
+    "README.md",
+    "VISION.md",
+    "ROADMAP.md",
+    "docs/INTEROPERABILITY.md",
+    "docs/SCHEMA.md"
+  ],
+  "context_owner": "repository",
+  "publication": {
+    "mode": "reviewed-pr",
+    "target": "inbox"
+  },
+  "sharing": {
+    "mode": "references-only",
+    "export_paths": []
+  },
+  "note": "Open-source project descriptor. Private hub bindings belong in the user's protected hub, not in this public repository."
+}
