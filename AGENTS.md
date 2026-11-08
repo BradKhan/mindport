@@ -24,3 +24,7 @@ Mindport is a **person-owned intelligence protocol and product**, not a ChatGPT/
 - Include Python and JavaScript contract tests. The public UI and CLI must agree on supported formats and security boundaries.
 
 Existing source adapters are convenience entry points, never the product definition.
+
+## Cross-repository context adapter (experimental)
+
+[Repo Bridge v0](docs/repo-bridge.md) provides metadata-only GitHub discovery and an opt-in local descriptor. This is **not** a second context-pack format, account connector or permission grant. It must preserve the existing `mindport.context-pack.v1` schema and `docs/INTEROPERABILITY.md` contract. No repository data or model provider connection is captured automatically. Read [CONTEXT.md](CONTEXT.md) for the source navigation map.
