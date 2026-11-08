@@ -135,15 +135,21 @@ class GitHubReadOnly:
                 return output
         raise BridgeError("pagination limit exceeded; collection incomplete")
 
-    def root(self, full_name: str, branch: str) -> list[str]:
+    def root(self, full_name: str, branch: str) -> dict:
         valid_repo(full_name)
         if not isinstance(branch, str) or not branch:
             raise BridgeError("repository default branch missing")
         route = urllib.parse.quote(branch, safe="")
-        data = self.get(f"/repos/{full_name}/git/trees/{route}")
+        data = self.get(f"/repos/{full_name}/git/trees/{route}?recursive=1")
         if not isinstance(data, dict) or not isinstance(data.get("tree"), list):
             raise BridgeError("invalid Git tree")
-        return sorted({t["path"] for t in data["tree"] if t.get("type") == "blob"})
+        if data.get("truncated"):
+            raise BridgeError("Git tree truncated: cannot claim complete context discovery")
+        tree_sha = data.get("sha")
+        if not isinstance(tree_sha, str) or not re.fullmatch(r"[a-fA-F0-9]{40}", tree_sha):
+            raise BridgeError("Git tree lacks a valid source SHA")
+        return {"paths": sorted({t["path"] for t in data["tree"] if t.get("type") == "blob"}),
+                "tree_sha": tree_sha}
 
     def manifest(self, full_name: str, branch: str) -> dict:
         route = urllib.parse.quote(branch, safe="")
@@ -158,7 +164,8 @@ class GitHubReadOnly:
         return validate_manifest(manifest)
 
 
-def summarize(repo: dict, root: list[str] | None = None, manifest: dict | None = None) -> dict:
+def summarize(repo: dict, root: list[str] | None = None, manifest: dict | None = None,
+              tree_sha: str | None = None) -> dict:
     full_name = valid_repo(repo["full_name"])
     docs = sorted(set(root or []).intersection(ENTRYPOINTS))
     status = (
@@ -178,6 +185,7 @@ def summarize(repo: dict, root: list[str] | None = None, manifest: dict | None =
         "fork": repo.get("fork"),
         "archived": repo.get("archived"),
         "entrypoints": docs,
+        "tree_sha": tree_sha,
         "bridge_status": status,
         "manifest": manifest,
         "authority": "source-repository",
@@ -203,17 +211,21 @@ def scan_online(client: GitHubReadOnly, orgs: list[str], inspect_roots: bool = T
     for repo in sorted(seen.values(), key=lambda r: r["full_name"].casefold()):
         root = None
         manifest = None
+        tree_sha = None
         error = None
         if inspect_roots:
             try:
-                root = client.root(repo["full_name"], repo.get("default_branch"))
+                tree = client.root(repo["full_name"], repo.get("default_branch"))
+                # Test fakes and older implementations can still return paths only.
+                root = tree["paths"] if isinstance(tree, dict) else tree
+                tree_sha = tree.get("tree_sha") if isinstance(tree, dict) else None
                 if ".context-hub.json" in root:
                     manifest = client.manifest(repo["full_name"], repo["default_branch"])
                     if manifest["repository"].casefold() != repo["full_name"].casefold():
                         raise BridgeError("manifest repository mismatch")
             except BridgeError as exc:
                 error = str(exc)
-        item = summarize(repo, root, manifest)
+        item = summarize(repo, root, manifest, tree_sha=tree_sha)
         item["inspection_error"] = error
         if error:
             item["bridge_status"] = "inspection-failed"
