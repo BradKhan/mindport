@@ -75,6 +75,30 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(item["authority"], "source-repository")
         self.assertIsNone(item["manifest"])
 
+    def test_recursive_nested_entrypoints_and_tree_sha(self):
+        from tools.repo_bridge import GitHubReadOnly
+        class FakeRemote(GitHubReadOnly):
+            def __init__(self):
+                self.calls = []
+            def get(self, path):
+                self.calls.append(path)
+                return {"sha": "a" * 40, "truncated": False, "tree": [
+                    {"path": "AGENTS.md", "type": "blob"},
+                    {"path": "context/routes.json", "type": "blob"},
+                ]}
+        remote = FakeRemote()
+        snapshot = remote.root("BradKhan/open-ASS", "main")
+        self.assertIn("?recursive=1", remote.calls[0])
+        self.assertIn("context/routes.json", snapshot["paths"])
+        self.assertEqual(snapshot["tree_sha"], "a" * 40)
+        class Truncated(FakeRemote):
+            def get(self, path):
+                result = super().get(path)
+                result["truncated"] = True
+                return result
+        with self.assertRaises(BridgeError):
+            Truncated().root("BradKhan/open-ASS", "main")
+
     def test_online_discovery_deduplicates_and_preserves_error(self):
         class Fake:
             def pages(self, path):
